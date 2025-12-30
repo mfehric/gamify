@@ -43,6 +43,17 @@
                         </div>
                     </div>
 
+                    <!-- HP Bar -->
+                    <div class="xp-container hp-container">
+                        <div class="xp-label">
+                            <span>HP</span>
+                            <span><span id="hp-current">100</span> / <span id="hp-max">100</span></span>
+                        </div>
+                        <div class="xp-bar hp-bar-bg">
+                            <div class="xp-fill hp-fill" id="hp-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+
                     <div class="xp-container">
                         <div class="xp-label">
                             <span>XP</span>
@@ -103,6 +114,19 @@
                     <button class="add-task-btn" onclick="app.openAddQuestModal()">
                         <span>➕</span> Dodaj Novi Quest
                     </button>
+                </section>
+
+                <!-- Anti-Quests Section (Bad Habits) -->
+                <section class="quests-section anti-quests">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>🚫</span>
+                            <span>Bad Habits (Anti-Quests)</span>
+                        </h2>
+                    </div>
+                    <div class="quest-list" id="bad-habits-list">
+                        <!-- Bad Habits will be rendered here -->
+                    </div>
                 </section>
             </div>
 

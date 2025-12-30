@@ -15,6 +15,8 @@ class GamifyApp {
                 name: 'Player',
                 level: 1,
                 xp: 0,
+                hp: 100,
+                maxHp: 100,
                 totalXP: 0,
                 streak: 0,
                 lastActiveDate: null,
@@ -51,9 +53,20 @@ class GamifyApp {
         const saved = localStorage.getItem('gamify_state');
         if (saved) {
             const parsed = JSON.parse(saved);
+
+            // Ensure HP exists for old saves
+            if (typeof parsed.player.hp === 'undefined') {
+                parsed.player.hp = 100;
+                parsed.player.maxHp = 100;
+            }
+
             // Check if it's a new day - reset daily tasks
             const today = this.getDateString();
-            if (parsed.player.lastActiveDate !== today) {
+            if (parsed.player.lastActiveDate !== today && parsed.player.lastActiveDate) {
+                // PENALTY CHECK FOR PREVIOUS DAY
+                // If critical tasks (like Salah) were not done, apply damage
+                this.checkMissedDailyPenalties(parsed);
+
                 parsed.completedToday = [];
                 // Reset subtask status for today
                 Object.keys(parsed.tasks).forEach(taskId => {
@@ -90,6 +103,7 @@ class GamifyApp {
         this.renderHeader();
         this.renderStats();
         this.renderQuests();
+        this.renderBadHabits(); // Render Bad Habits
         this.renderSidebar();
         this.updateStreakIfNeeded();
         this.showDailyQuote();
@@ -163,6 +177,11 @@ class GamifyApp {
         document.getElementById('today-total').textContent = totalTasks;
         document.getElementById('multiplier-value').textContent = `${this.getStreakMultiplier()}x`;
         document.getElementById('total-xp-value').textContent = this.state.player.totalXP;
+
+        // Update HP
+        document.getElementById('hp-current').textContent = Math.round(this.state.player.hp);
+        document.getElementById('hp-max').textContent = this.state.player.maxHp || 100;
+        document.getElementById('hp-fill').style.width = `${(this.state.player.hp / (this.state.player.maxHp || 100)) * 100}%`;
     }
 
     // Render quest cards
@@ -499,6 +518,116 @@ class GamifyApp {
                 setTimeout(() => confetti.remove(), 5000);
             }, i * 30);
         }
+    }
+
+    // ==========================================
+    // BAD HABITS & HP SYSTEM
+    // ==========================================
+
+    // Check missed penalties from previous day
+    checkMissedDailyPenalties(parsedState) {
+        // Critical quests that MUST be done
+        const criticalQuests = ['salah', 'trader-math'];
+        let penaltyApplied = false;
+
+        criticalQuests.forEach(questId => {
+            const quest = parsedState.tasks[questId];
+            if (quest && !parsedState.completedToday.includes(questId)) {
+                // Apply penalty directly to the state object
+                parsedState.player.hp = Math.max(0, parsedState.player.hp - 10);
+                penaltyApplied = true;
+            }
+        });
+
+        if (penaltyApplied) {
+            // Can't show toast here as app is not fully init, but we save the state
+            console.log('Daily penalty applied');
+        }
+    }
+
+    // Render Bad Habits
+    renderBadHabits() {
+        const container = document.getElementById('bad-habits-list');
+        if (!container) return; // Guard clause if element doesn't exist
+
+        container.innerHTML = '';
+
+        BAD_HABITS.forEach(habit => {
+            const card = document.createElement('div');
+            card.className = 'quest-card anti-quest';
+            card.innerHTML = `
+                <div class="quest-item">
+                    <div class="quest-icon anti-icon">${habit.icon}</div>
+                    <div class="quest-content">
+                        <h3 class="quest-title">${habit.name}</h3>
+                        <div class="quest-desc">${habit.description}</div>
+                        <div class="penalty-text">
+                            ⚠️ Penalty: ${habit.xpPenalty} XP / ${habit.hpPenalty} HP
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-slip-up" onclick="app.handleBadHabit('${habit.id}')">
+                    <span>💀</span> I Slipped Up
+                </button>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Handle Bad Habit "Slip Up"
+    handleBadHabit(habitId) {
+        const habit = BAD_HABITS.find(h => h.id === habitId);
+        if (!habit) return;
+
+        // Apply penalties
+        this.addXP(habit.xpPenalty); // Negative XP
+        this.updateHP(habit.hpPenalty);
+
+        // Visual feedback
+        this.triggerScreenShake();
+        this.showToast('level-up', '❌ Bad Habit!', `Lost ${Math.abs(habit.xpPenalty)} XP and ${Math.abs(habit.hpPenalty)} HP`);
+
+        // Play sound if enabled
+        if (this.state.settings.soundEnabled) {
+            // Could add specific fail sound here
+        }
+    }
+
+    // Update HP
+    updateHP(amount) {
+        this.state.player.hp = Math.min(this.state.player.maxHp, Math.max(0, this.state.player.hp + amount));
+
+        // Check for death
+        if (this.state.player.hp <= 0) {
+            this.handleDeath();
+        }
+
+        this.saveState();
+        this.renderStats();
+    }
+
+    // Handle Player Death (0 HP)
+    handleDeath() {
+        this.state.player.level = Math.max(1, this.state.player.level - 1);
+        this.state.player.hp = 100; // Reset HP
+        this.state.player.xp = 0; // Reset current XP
+
+        this.showToast('level-down', '☠️ WASTED', 'You died! Level lost. HP restored.');
+        this.triggerScreenShake();
+    }
+
+    // Visual effect for damage
+    triggerScreenShake() {
+        document.body.classList.add('screen-shake');
+        const overlay = document.createElement('div');
+        overlay.className = 'damage-overlay active';
+        document.body.appendChild(overlay);
+
+        setTimeout(() => {
+            document.body.classList.remove('screen-shake');
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.remove(), 200);
+        }, 500);
     }
 
     // Reset today's progress (for testing)

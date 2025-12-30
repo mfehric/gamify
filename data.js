@@ -129,6 +129,13 @@ const MOTIVATIONAL_QUOTES = [
     "You don't rise to the level of your goals. You fall to the level of your systems."
 ];
 
+const BAD_HABITS = [
+    { id: 'social-media', name: 'Mindless Scrolling', icon: '📱', xpPenalty: -30, hpPenalty: -10, description: 'TikTok/Insta/Reels > 15min' },
+    { id: 'procrastination', name: 'Procrastination', icon: 'zzz', xpPenalty: -20, hpPenalty: -5, description: 'Odgađanje posla' },
+    { id: 'junk-food', name: 'Junk Food', icon: '🍔', xpPenalty: -40, hpPenalty: -15, description: 'Slatkiši ili brza hrana' },
+    { id: 'missed-salah', name: 'Missed Salah', icon: '🕌', xpPenalty: -100, hpPenalty: -25, description: 'Propušten namaz namjerno' }
+];
+
 const STREAK_MULTIPLIERS = {
     0: 1.0,
     3: 1.25,
