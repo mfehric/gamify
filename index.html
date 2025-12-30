@@ -148,6 +148,15 @@
                     <p class="quote-source">— Atomic Habits</p>
                 </div>
 
+                <!-- Daily Plan Button -->
+                <div class="progress-card"
+                    style="cursor: pointer; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border-color: rgba(59, 130, 246, 0.3);"
+                    onclick="app.generateDailySchedule()">
+                    <div class="progress-title" style="color: #60a5fa; margin-bottom: 0.5rem;">📅 Planiraj Dan</div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">Automatski kreiraj raspored za danas
+                        pomoću AI</p>
+                </div>
+
                 <!-- Compound Progress (1% daily) -->
                 <div class="progress-card">
                     <div class="progress-title">📈 1% Dnevno Poboljšanje</div>
@@ -229,6 +238,24 @@
                     <button type="submit" class="btn btn-primary">Kreiraj Quest</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Schedule Modal -->
+    <div class="modal" id="schedule-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="modal-close" onclick="app.closeScheduleModal()">✕</button>
+            <div class="modal-icon">📅</div>
+            <h2 class="modal-title">Tvoj Pametni Raspored</h2>
+
+            <div id="schedule-timeline" class="timeline-container">
+                <!-- Timeline items will be generated here -->
+            </div>
+
+            <div class="form-actions" style="margin-top: 2rem;">
+                <button type="button" class="btn btn-secondary" onclick="app.closeScheduleModal()">Zatvori</button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Isprintaj / PDF</button>
+            </div>
         </div>
     </div>
 

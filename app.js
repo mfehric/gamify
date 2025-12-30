@@ -642,6 +642,105 @@ class GamifyApp {
         this.init();
     }
 
+    // ==========================================
+    // SMART DAILY SCHEDULE
+    // ==========================================
+
+    generateDailySchedule() {
+        const activeQuests = QUESTS.filter(quest => {
+            const taskState = this.state.tasks[quest.id];
+            // Only include quests that are NOT fully completed
+            const completedCount = Object.values(taskState.subtaskStatus).filter(Boolean).length;
+            return completedCount < quest.subtasks.length;
+        });
+
+        if (activeQuests.length === 0) {
+            this.showToast('info', 'Sve završeno!', 'Nemaš taskova za planiranje danas.');
+            return;
+        }
+
+        // Start time logic: Next :00 or :30
+        let currentTime = new Date();
+        let startMinutes = currentTime.getMinutes();
+        let addMinutes = startMinutes >= 30 ? (60 - startMinutes) : (30 - startMinutes);
+        currentTime.setMinutes(currentTime.getMinutes() + addMinutes); // Round up
+        currentTime.setSeconds(0);
+
+        const schedule = [];
+
+        activeQuests.forEach((quest, index) => {
+            // Calculate end time
+            const startTimeStr = this.formatTime(currentTime);
+            const duration = quest.duration || 30; // Default 30 min if missing
+
+            // Add task to schedule
+            schedule.push({
+                type: 'task',
+                time: startTimeStr,
+                name: quest.name,
+                icon: quest.icon,
+                duration: duration,
+                color: quest.color
+            });
+
+            // Advance time
+            currentTime.setMinutes(currentTime.getMinutes() + duration);
+
+            // Add break if needed (and not last item)
+            if (index < activeQuests.length - 1 && duration >= 45) {
+                const breakStart = this.formatTime(currentTime);
+                const breakDuration = 10; // 10 min break
+
+                schedule.push({
+                    type: 'break',
+                    time: breakStart,
+                    name: 'Odmor za mozak',
+                    icon: '☕',
+                    duration: breakDuration,
+                    color: '#10b981'
+                });
+
+                currentTime.setMinutes(currentTime.getMinutes() + breakDuration);
+            }
+        });
+
+        this.renderDailySchedule(schedule);
+    }
+
+    renderDailySchedule(schedule) {
+        const modal = document.getElementById('schedule-modal');
+        const container = document.getElementById('schedule-timeline');
+
+        container.innerHTML = schedule.map(item => `
+            <div class="timeline-item ${item.type}">
+                <div class="time-slot">${item.time}</div>
+                <div class="timeline-marker" style="border-color: ${item.color}"></div>
+                <div class="timeline-content" style="border-left: 3px solid ${item.color}">
+                    <div class="timeline-title">
+                        <span>${item.icon}</span> ${item.name}
+                    </div>
+                    <div class="timeline-desc">
+                        Trajanje: ${item.duration} min
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        modal.classList.add('active');
+    }
+
+    closeScheduleModal() {
+        document.getElementById('schedule-modal').classList.remove('active');
+    }
+
+    formatTime(date) {
+        return date.toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ==========================================
+    // GAME LOOP & UTILS
+    // ==========================================
+
     // Full reset (for testing)
     fullReset() {
         localStorage.removeItem('gamify_state');
@@ -717,7 +816,8 @@ class GamifyApp {
                     'Otvori skriptu i pročitaj jednu stranicu',
                     'Otvori materijale i pregledaj naslove',
                     'Sjedi za stol i otvori bilježnicu'
-                ]
+                ],
+                duration: 60
             },
             fitness: {
                 keywords: ['teretana', 'gym', 'vježba', 'trening', 'sport', 'trčanje', 'run', 'workout', 'fitness', 'zdravlje'],
@@ -732,7 +832,8 @@ class GamifyApp {
                     'Obuci sportsku odjeću',
                     'Napravi 5 čučnjeva',
                     'Izađi van i prošetaj 2 minute'
-                ]
+                ],
+                duration: 90
             },
             career: {
                 keywords: ['posao', 'karijera', 'career', 'job', 'work', 'projekt', 'zadatak', 'meeting', 'internship', 'prijava'],
@@ -747,7 +848,8 @@ class GamifyApp {
                     'Otvori laptop i provjeri email',
                     'Napravi listu prioriteta za danas',
                     'Pošalji jednu poruku ili email'
-                ]
+                ],
+                duration: 60
             },
             spiritual: {
                 keywords: ['namaz', 'salah', 'dova', 'quran', 'kuran', 'ibadet', 'meditacija', 'molitva', 'duhovno'],
@@ -762,7 +864,8 @@ class GamifyApp {
                     'Uzmi abdest',
                     'Prouči jednu dovu',
                     'Sjedni i razmisli o zahvalnosti'
-                ]
+                ],
+                duration: 15
             },
             reading: {
                 keywords: ['čitanje', 'knjiga', 'read', 'book', 'literatura', 'roman', 'lektira'],
@@ -777,7 +880,8 @@ class GamifyApp {
                     'Uzmi knjigu i pročitaj jednu stranicu',
                     'Otvori e-reader',
                     'Sjedni u udoban kutak s knjigom'
-                ]
+                ],
+                duration: 30
             },
             creative: {
                 keywords: ['pisanje', 'crtanje', 'dizajn', 'kreativ', 'art', 'muzika', 'glazba', 'fotografija'],
@@ -792,7 +896,8 @@ class GamifyApp {
                     'Uzmi olovku i nacrtaj jednu liniju',
                     'Otvori program i napravi novi dokument',
                     'Pusti omiljenu inspirativnu pjesmu'
-                ]
+                ],
+                duration: 60
             },
             social: {
                 keywords: ['porodica', 'obitelj', 'prijatelj', 'druženje', 'family', 'friend', 'social', 'poziv'],
@@ -807,7 +912,8 @@ class GamifyApp {
                     'Pošalji poruku jednoj bliskoj osobi',
                     'Nazovi nekog tko ti je drag',
                     'Planiraj jedno druženje'
-                ]
+                ],
+                duration: 60
             },
             coding: {
                 keywords: ['kod', 'code', 'coding', 'programming', 'programiranje', 'develop', 'software', 'web', 'app'],
@@ -822,7 +928,8 @@ class GamifyApp {
                     'Otvori editor i napiši jednu liniju koda',
                     'Otvori dokumentaciju i pročitaj intro',
                     'Pokreni terminal i provjeri git status'
-                ]
+                ],
+                duration: 90
             }
         };
 
@@ -849,7 +956,8 @@ class GamifyApp {
                     'Otvori potrebne alate i počni',
                     'Napravi prvi mali korak',
                     'Sjedni i fokusiraj se 2 minute'
-                ]
+                ],
+                duration: 30
             };
         }
 
@@ -859,7 +967,7 @@ class GamifyApp {
         const identity = matchedCategory.identities[Math.floor(Math.random() * matchedCategory.identities.length)];
         const twoMinRule = matchedCategory.twoMinRules[Math.floor(Math.random() * matchedCategory.twoMinRules.length)];
 
-        return { icon, color, identity, twoMinRule };
+        return { icon, color, identity, twoMinRule, duration: matchedCategory.duration };
     }
 
     // Update live preview
@@ -942,7 +1050,8 @@ class GamifyApp {
             subtasks: subtasks,
             twoMinuteRule: props.twoMinRule,
             color: props.color,
-            isCustom: true
+            isCustom: true,
+            duration: props.duration
         };
 
         // Add to QUESTS array

@@ -18,7 +18,8 @@ const QUESTS = [
             { id: 'isha', name: 'Isha', xp: 15 }
         ],
         twoMinuteRule: 'Ustani i uzmi abdest',
-        color: '#10b981'
+        color: '#10b981',
+        duration: 75 // Total daily time approx
     },
     {
         id: 'tradermath',
@@ -32,7 +33,8 @@ const QUESTS = [
         ],
         twoMinuteRule: 'Otvori TraderMath i pročitaj 1 problem',
         habitStack: 'Nakon Fajr namaza',
-        color: '#f59e0b'
+        color: '#f59e0b',
+        duration: 20 // 20 mins
     },
     {
         id: 'ml',
@@ -45,7 +47,8 @@ const QUESTS = [
             { id: 'ml-study', name: 'Study session (30min)', xp: 35 }
         ],
         twoMinuteRule: 'Otvori kurs i pročitaj intro',
-        color: '#8b5cf6'
+        color: '#8b5cf6',
+        duration: 45 // 45 mins
     },
     {
         id: 'internship',
@@ -58,7 +61,8 @@ const QUESTS = [
             { id: 'int-apply', name: 'Apply to 1 company', xp: 50 }
         ],
         twoMinuteRule: 'Otvori LinkedIn i pronađi 1 poziciju',
-        color: '#06b6d4'
+        color: '#06b6d4',
+        duration: 30 // 30 mins
     },
     {
         id: 'master',
@@ -71,7 +75,8 @@ const QUESTS = [
             { id: 'master-work', name: 'Work on application', xp: 45 }
         ],
         twoMinuteRule: 'Otvori dokument i napiši 1 rečenicu',
-        color: '#ec4899'
+        color: '#ec4899',
+        duration: 45 // 45 mins
     },
     {
         id: 'job',
@@ -84,7 +89,8 @@ const QUESTS = [
             { id: 'job-tasks', name: 'Complete daily tasks', xp: 40 }
         ],
         twoMinuteRule: 'Otvori Slack/Email i provjeri inbox',
-        color: '#3b82f6'
+        color: '#3b82f6',
+        duration: 240 // 4 hours
     }
 ];
 
