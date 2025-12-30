@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="hr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="GAMIFY - Pretvori svoj život u igricu. Produktivnost kroz gamifikaciju i Atomic Habits principe.">
+    <title>GAMIFY - Life Quest System 🎮</title>
+
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🎮</span>
+                    <span>GAMIFY</span>
+                </div>
+
+                <div class="player-stats">
+                    <div class="level-badge">
+                        <span class="level-icon" id="level-icon">🌱</span>
+                        <div class="level-info">
+                            <span class="level-number" id="level-number">Level 1</span>
+                            <span class="level-title" id="level-title">Novice</span>
+                        </div>
+                    </div>
+
+                    <div class="xp-container">
+                        <div class="xp-label">
+                            <span>XP</span>
+                            <span><span id="xp-current">0</span> / <span id="xp-next">100</span></span>
+                        </div>
+                        <div class="xp-bar">
+                            <div class="xp-fill" id="xp-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="dashboard">
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-card streak">
+                        <div class="stat-icon streak-fire">🔥</div>
+                        <div class="stat-value" id="streak-value">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value"><span id="today-completed">0</span>/<span id="today-total">0</span>
+                        </div>
+                        <div class="stat-label">Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value" id="multiplier-value">1x</div>
+                        <div class="stat-label">Multiplier</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="total-xp-value">0</div>
+                        <div class="stat-label">Total XP</div>
+                    </div>
+                </div>
+
+                <!-- Quests Section -->
+                <section class="quests-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>⚔️</span>
+                            <span>Daily Quests</span>
+                        </h2>
+                    </div>
+                    <div class="quest-list" id="quest-list">
+                        <!-- Quests will be rendered here by JavaScript -->
+                    </div>
+
+                    <!-- Add New Quest Button -->
+                    <button class="add-task-btn" onclick="app.openAddQuestModal()">
+                        <span>➕</span> Dodaj Novi Quest
+                    </button>
+                </section>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Identity Card (Atomic Habits) -->
+                <div class="identity-card">
+                    <div class="identity-title">🪞 Tko Postaješ</div>
+                    <p class="identity-statement" id="identity-statement">
+                        Završi task i postani osoba koju želiš biti!
+                    </p>
+                </div>
+
+                <!-- Motivational Quote -->
+                <div class="quote-card">
+                    <p class="quote-text" id="quote-text">
+                        "Svaki put kad završiš task, glasaš za osobu koju želiš postati."
+                    </p>
+                    <p class="quote-source">— Atomic Habits</p>
+                </div>
+
+                <!-- Compound Progress (1% daily) -->
+                <div class="progress-card">
+                    <div class="progress-title">📈 1% Dnevno Poboljšanje</div>
+                    <div class="compound-progress">
+                        <div class="compound-value" id="compound-value">1.00x</div>
+                        <div class="compound-label" id="compound-days">0 dana konzistentnosti</div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="achievements-panel">
+                    <div class="achievements-title">
+                        <span>🏆</span>
+                        <span>Achievements</span>
+                    </div>
+                    <div class="achievements-grid" id="achievements-grid">
+                        <!-- Achievements will be rendered here by JavaScript -->
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Level Up Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-icon" id="modal-icon">🎉</div>
+            <h2 class="modal-title" id="modal-title">LEVEL UP!</h2>
+            <p class="modal-text" id="modal-text">Čestitamo! Dosegao si novi level!</p>
+            <button class="modal-btn" onclick="closeModal()">Nastavi Quest</button>
+        </div>
+    </div>
+
+    <!-- Add Quest Modal -->
+    <div class="modal-overlay" id="add-quest-modal">
+        <div class="modal add-quest-modal">
+            <button class="modal-close" onclick="app.closeAddQuestModal()">✕</button>
+            <div class="modal-icon">🆕</div>
+            <h2 class="modal-title">Novi Quest</h2>
+
+            <form id="add-quest-form" onsubmit="app.createQuest(event)">
+                <div class="form-group">
+                    <label for="quest-name">Naziv Questa *</label>
+                    <input type="text" id="quest-name" placeholder="npr. Faks, Teretana, Čitanje..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="quest-description">Opis (opcionalno)</label>
+                    <input type="text" id="quest-description" placeholder="Kratak opis cilja...">
+                </div>
+
+                <div class="form-group">
+                    <label>Subtaskovi (zadaci unutar questa)</label>
+                    <div id="subtask-inputs">
+                        <div class="subtask-input-row">
+                            <input type="text" class="subtask-input" placeholder="npr. Predavanje iz Matematike">
+                            <button type="button" class="btn-icon remove-subtask"
+                                onclick="app.removeSubtaskInput(this)">✕</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-add-subtask" onclick="app.addSubtaskInput()">
+                        <span>➕</span> Dodaj subtask
+                    </button>
+                </div>
+
+                <!-- Auto-generated preview -->
+                <div class="auto-generated-preview" id="auto-preview">
+                    <div class="preview-title">✨ Automatski generirano:</div>
+                    <div class="preview-content" id="preview-content">
+                        Unesi naziv questa da vidiš preview...
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" onclick="app.closeAddQuestModal()">Odustani</button>
+                    <button type="submit" class="btn btn-primary">Kreiraj Quest</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('GAMIFY: Service Worker registered'))
+                    .catch(err => console.log('GAMIFY: Service Worker registration failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>
