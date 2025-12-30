@@ -1104,6 +1104,8 @@ class GamifyApp {
 let app;
 document.addEventListener('DOMContentLoaded', () => {
     app = new GamifyApp();
+    window.app = app; // Expose to window for inline onclick handlers
+
     // Load custom quests first
     app.loadCustomQuests();
     // Re-initialize to include custom quests
