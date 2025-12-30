@@ -1,5 +1,5 @@
 // GAMIFY Service Worker - Enables offline functionality
-const CACHE_NAME = 'gamify-v1';
+const CACHE_NAME = 'gamify-v2';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
